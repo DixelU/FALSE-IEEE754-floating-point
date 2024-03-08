@@ -1,0 +1,112 @@
+<body>
+	<title>FALSE IEEE754 FP INSTRUCTION LIST</title>
+	<textarea id="output" style='margin: 10px;position:relative; width:calc(100% - 20px); height:calc(100% - 20px);' ></textarea>
+	<script>
+
+		let IF_ELSE_EXPR = (if_lambda, else_lambda) => {
+			return `[${if_lambda}][${else_lambda}]@[\\]?\\%!`
+		};
+		let main = {};
+			main.READ_POSITIVE_INT_FROM_OUTPUT = 
+				`0[^$$'0 1->\\'9>0=&]['0-\\10*+]#%`;
+			main.COPY_TWO_FROM_TOP = 
+				`\\$@$@\\`;
+			main.MODULO =
+				`${main.COPY_TWO_FROM_TOP}/*-`;
+			main.DIVIDE_BY_2_WITH_ROUNDING = 
+				`$1+2/\\%`;
+			main.IS_NEGATIVE = 
+				`$_0>`;
+			main.ABS =
+				`${main.IS_NEGATIVE}[_]?`;
+			main.SGN =
+				`${main.IS_NEGATIVE}~`;
+			main.DECAY = 											// 127 -> 126; -127 -> -126
+				`$$0>\\0=\\${IF_ELSE_EXPR(`%1-`,`~[1+]?`)}`;
+			main._FP_SCB = 											//sign const bit
+				`2147483648`;
+			main._FP_ECB = 											//exponent const bit
+				`8388608`;
+			main._FP_ECB_H = 										//subexponent const bit
+				`4194304`;
+			main.FP_GSB = 											//get sign bit
+				`${main.SGN}`;
+			main.FP_SSB = 											//set sign bit         //fp s
+				`\\${main.ABS}\\0=[_]?`;
+			main.FP_GEX = 											//get exponent
+				`${main.ABS}${main._FP_ECB}/`;
+			main.FP_SEX = 											//set exponent         //fp ex
+				`\\$${main.FP_GEX}${main._FP_ECB}*\\$0>@\\${IF_ELSE_EXPR(`-`,`+`)}\\${main._FP_ECB}*+`;
+			main.FP_GMN = 											//get mantiss
+				`${main.ABS}${main._FP_ECB}${main.MODULO}`;
+			main.FP_SMN = 											//set mantis           //fp mn
+				`${main._FP_ECB}${main.MODULO}\\${main.IS_NEGATIVE}\\${main.ABS}$${main.FP_GMN}-@+\\[_]?`;
+
+			main.CAST_INT_TO_FP = 									// int to FP
+				`0~\\$0=~[${main.IS_NEGATIVE}[_\\%0\\]?0\\[$$\\${main._FP_ECB_H}\\>&][\\1+\\2*]#[$$\\${main._FP_ECB}\\>~&][\\1-\\2/]#2*${main._FP_ECB}${main.MODULO}\\22\\-127+${main.FP_SEX}]?\\0=[_]?`;
+			
+			main.CAST_FP_TO_INT = 									//FP to int
+				`${main.FP_GSB}\\$${main.FP_GMN}${main._FP_ECB}+\\${main.FP_GEX}127-23\\-[${main.COPY_TWO_FROM_TOP}0=~\\0=~&][$${main.DECAY}$@>$[@2*@@]?~[\\2/\\]?]#%\\0=[_]?`;
+			
+			main.__GUSM_BS_FP = 									//get unnormalised shifted mantissa of FP b (a b -> mnt(b')
+				`${main.COPY_TWO_FROM_TOP}${main.FP_GEX}\\${main.FP_GEX}\\-@%\\${main.FP_GMN}${main._FP_ECB}+\\[$@@0>][\\$@@1=${IF_ELSE_EXPR(`${main.DIVIDE_BY_2_WITH_ROUNDING}`, `2/`)}\\1-]#\\%`
+
+			main.FP_ABS_SGNSRTADD = 								// (FP) - a b -> a + |b|*sgn(a) (if a > b) (FP)
+				`${main.COPY_TWO_FROM_TOP}>~[\\]?${main.COPY_TWO_FROM_TOP}${main.__GUSM_BS_FP}@@%$${main.FP_GMN}@+$${main._FP_ECB}${main.COPY_TWO_FROM_TOP}>@@=|[${main._FP_ECB}-\\$${main.FP_GEX}1+$255>[%255]?${main.FP_SEX}\\${main.DIVIDE_BY_2_WITH_ROUNDING}]?${main.FP_SMN}`;
+
+			main.FP_STRICT_ADD = 									// ieee 754 strict add (no hidden subtraction)
+				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}0>~\\0>~&@@0>\\0>&\\$@|${
+			IF_ELSE_EXPR(`${IF_ELSE_EXPR('_\\_\\1@@','0@@')}${main.COPY_TWO_FROM_TOP}>~[\\]?${main.FP_ABS_SGNSRTADD}\\[_]?`,'%')}`
+
+			main.FP_ABS_SGNSRTSUB = 								// (FP) - a b -> |a| - |b| (if a > b) (FP)
+				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}${main.__GUSM_BS_FP}@@\\${main.__GUSM_BS_FP}\\-@@%${main.FP_GEX}\\[$${main._FP_ECB}\\>][2*\\$0>${IF_ELSE_EXPR(`1-\\`,`\\${main._FP_SCB}`)}]#$${main._FP_SCB}=[%]?0\\${main.FP_SMN}\\${main.FP_SEX}`
+
+			main.FP_STRICT_SUB = 
+
+			main.FP_PRINT = 
+				``;
+
+
+		const shift=50;
+		for(keys in main){
+			document.getElementById('output').value += keys + ':' + (' '.repeat(shift-keys.length)) +main[keys]+'\n';
+
+		}
+	/* FALSE short instruction list
+		+ - pops 2 values and pushes their sum
+		- - ...
+		* - ...
+		/ - ...
+		_ - unary minus
+		= - ==
+		> - ...
+		& - ...
+		| - ...
+		~ - unary negating
+	
+		$ - dub the top of the stack                123->1233
+		% - pop the top of the stack				123->12
+		\ - swap 2 topmost elements of the stack	123->132
+		@ - rotate 3 elements						12345->12453
+		P - pick the n-th element to the top		54321->54322 (custom)
+		D - put stack size to the top               54321->543215 (custom)
+	
+		a-z - variables
+		3a: - assign top of the stack to variable a
+		a;  - push value of a to the stack
+	
+		N - push to the n-th place from the top		7654193->76591
+		! - execute the lamda according to pointer on the top of the stack
+		? - if statement (stack: ab -> ?: if a -> execute b)		[if expr][body]?
+		# - while thing - (ab -> #: while a -> execute b)			[if expr][body]#
+		"print main string to output"
+		' - push charcode of the next symbol
+		. - print number on the top
+		, - print char on the top
+		^ - read the symbol
+		B - flush io
+	*/
+	</script>
+
+
+</body>
