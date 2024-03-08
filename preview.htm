@@ -57,22 +57,28 @@
 			main.FP_STRICT_ADD = 									// ieee 754 strict add (no hidden subtraction)
 				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}0>~\\0>~&@@0>\\0>&\\$@|${
 			IF_ELSE_EXPR(`${IF_ELSE_EXPR('_\\_\\1@@','0@@')}${main.COPY_TWO_FROM_TOP}>~[\\]?${main.FP_ABS_SGNSRTADD}\\[_]?`,'%')}`
+			
+			main.BIT_KLB = 											// keep larget bit
+				`$0>[0\\[$1>][\\1+\\2/]#\\[$0>][1-\\2*\\]#%]?`
 
-			main.FP_ABS_SGNSRTSUB = 								// (FP) - a b -> |a| - |b| (if a > b) (FP)
+			main.FP_ABS_SGNSRTSUB = 								// (FP) - a b -> a - b (if a > b and a > 0 and b > 0) (FP)
 				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}${main.__GUSM_BS_FP}@@\\${main.__GUSM_BS_FP}\\-@@%${main.FP_GEX}\\[$${main._FP_ECB}\\>][2*\\$0>${IF_ELSE_EXPR(`1-\\`,`\\${main._FP_SCB}`)}]#$${main._FP_SCB}=[%]?0\\${main.FP_SMN}\\${main.FP_SEX}`
+			// else - \\$${main.BIT_KLB}-${main._FP_SCB}  
+
 
 			main.FP_STRICT_SUB = 
+				`${main.COPY_TWO_FROM_TOP}\\>[\\]? {idk anymore tbh}`;
 
 			main.FP_PRINT = 
 				``;
-
+		
 
 		const shift=50;
 		for(keys in main){
 			document.getElementById('output').value += keys + ':' + (' '.repeat(shift-keys.length)) +main[keys]+'\n';
 
 		}
-	/* FALSE short instruction list
+	/*
 		+ - pops 2 values and pushes their sum
 		- - ...
 		* - ...
@@ -88,8 +94,8 @@
 		% - pop the top of the stack				123->12
 		\ - swap 2 topmost elements of the stack	123->132
 		@ - rotate 3 elements						12345->12453
-		P - pick the n-th element to the top		54321->54322 (custom)
-		D - put stack size to the top               54321->543215 (custom)
+		P - pick the n-th element to the top		54321->54322
+		D - put stack size to the top               54321->543215
 	
 		a-z - variables
 		3a: - assign top of the stack to variable a
