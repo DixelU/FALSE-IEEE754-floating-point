@@ -13,6 +13,8 @@
 				`\\$@$@\\`;
 			main.MODULO =
 				`${main.COPY_TWO_FROM_TOP}/*-`;
+			main.BOOL_XOR = 
+				`\\$@$@\\|@@&~&`
 			main.DIVIDE_BY_2_WITH_ROUNDING = 
 				`$1+2/\\%`;
 			main.IS_NEGATIVE = 
@@ -65,9 +67,53 @@
 				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}${main.__GUSM_BS_FP}@@\\${main.__GUSM_BS_FP}\\-@@%${main.FP_GEX}\\[$${main._FP_ECB}\\>][2*\\$0>${IF_ELSE_EXPR(`1-\\`,`\\${main._FP_SCB}`)}]#$${main._FP_SCB}=[%]?0\\${main.FP_SMN}\\${main.FP_SEX}`
 			// else - \\$${main.BIT_KLB}-${main._FP_SCB}  
 
-
-			main.FP_STRICT_SUB = 
-				`${main.COPY_TWO_FROM_TOP}\\>[\\]? {idk anymore tbh}`;
+			main.FP_GENERIC_SUB__LAZY = 
+				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}\\>@@0>~\\0>~${
+					IF_ELSE_EXPR(
+						IF_ELSE_EXPR(
+							IF_ELSE_EXPR(
+								`_\\_\\${main.FP_ABS_SGNSRTSUB}_`,
+								`_\\_${main.FP_ABS_SGNSRTSUB}`),
+							`%\\_${main.FP_STRICT_ADD}_`),
+						IF_ELSE_EXPR(
+							`%_${main.FP_STRICT_ADD}`,
+							IF_ELSE_EXPR(
+								`\\${main.FP_ABS_SGNSRTSUB}_`,
+								`${main.FP_ABS_SGNSRTSUB}`)
+						)
+					)}`;
+					
+			/*
+			
+			if(a < 0)
+			{
+				if(b < 0)
+				{
+					if(b > a)
+						-ABS_SGNSRTSUB(-a, -b)
+					else
+						ABS_SGNSRTSUB(-b, -a)
+				}
+				else
+				{
+					-FP_STRICT_ADD(b, -a)
+				}
+			}
+			else
+			{
+				if(b < 0)
+				{
+					FP_STRICT_ADD(a, -b)
+				}
+				else
+				{
+					if(b > a)
+						-ABS_SGNSRTSUB(b, a)
+					else
+						ABS_SGNSRTSUB(a, b)
+				}
+			}
+			*/
 
 			main.FP_PRINT = 
 				``;
@@ -75,8 +121,7 @@
 
 		const shift=50;
 		for(keys in main){
-			document.getElementById('output').value += keys + ':' + (' '.repeat(shift-keys.length)) +main[keys]+'\n';
-
+			document.getElementById('output').value += keys + ':' + (' '.repeat(shift-keys.length)) + main[keys] + '\n';
 		}
 	/*
 		+ - pops 2 values and pushes their sum
