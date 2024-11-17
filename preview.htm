@@ -58,7 +58,7 @@
 
 			main.FP_STRICT_ADD = 									// ieee 754 strict add (no hidden subtraction)
 				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}0>~\\0>~&@@0>\\0>&\\$@|${
-			IF_ELSE_EXPR(`${IF_ELSE_EXPR('_\\_\\1@@','0@@')}${main.COPY_TWO_FROM_TOP}>~[\\]?${main.FP_ABS_SGNSRTADD}\\[_]?`,'%')}`
+					IF_ELSE_EXPR(`${IF_ELSE_EXPR('_\\_\\1@@','0@@')}${main.COPY_TWO_FROM_TOP}>~[\\]?${main.FP_ABS_SGNSRTADD}\\[_]?`,'%')}`
 			
 			main.BIT_KLB = 											// keep larget bit
 				`$0>[0\\[$1>][\\1+\\2/]#\\[$0>][1-\\2*\\]#%]?`
@@ -82,9 +82,37 @@
 								`${main.FP_ABS_SGNSRTSUB}`)
 						)
 					)}`;
-					
+
+			/*main.FP_GENERIC_SUB__PROPER = 
+				// a b -> a b a b a b -> a b a b b a ->
+				// a b a b (b>a) -> a b (b>a) a (b<=0) -> a b (b>a) (b<=0) (a<=0) ->
+				`${main.COPY_TWO_FROM_TOP}${main.COPY_TWO_FROM_TOP}\\>@@0>~\\0>~` +
+				// a b (b>a) (a<=0) (b<=0) -> a b (b>a) (a<=0) (b<=0) [OP]
+				`\\`
+
+				;*/
+
+			main.FP_GENERIC_ADD =
+				`_${main.FP_GENERIC_SUB__LAZY}`;
+
+			main.__FP_MUL_SIGN_ADJUST =
+				// a b a (0>b)
+				`$0\\>${
+					IF_ELSE_EXPR('_1','0')
+				}@@\\$0\\>${
+					IF_ELSE_EXPR('_@1+','@')
+				}1\\=${
+					IF_ELSE_EXPR('1','0')
+				}\\@`;
+			
+			main.FP_MUL =
+				`${main.__FP_MUL_SIGN_ADJUST}${main.COPY_TWO_FROM_TOP}${main.FP_GEX}\\${main.FP_GEX}127-\\127-+127+@@${main.FP_GMN}${main._FP_ECB}+1024/\\${main.FP_GMN}${main._FP_ECB}+1024/*8/` +
+				`${main._FP_ECB}-$${main._FP_ECB}-0\\>~[\\1+\\2/${main._FP_ECB_H}-]?` +
+				`0\\${main.FP_SMN}\\${main.FP_SEX}\\1=[_]?`;
 			/*
 			
+8388608-$8388608/$@@8388608*-@@+\
+
 			if(a < 0)
 			{
 				if(b < 0)
